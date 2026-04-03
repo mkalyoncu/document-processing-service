@@ -26,7 +26,11 @@ public class SimulatedNerService implements NerService {
 
         return new NerResult(
                 List.of(
-                        new NamedEntity("cccc", "aaa", 1)
+                        new NamedEntity("ORGANIZATION", "Acme Corp", 0.97),
+                        new NamedEntity("DATE", "2026-01-15", 0.99),
+                        new NamedEntity("AMOUNT", "$12,450.00", 0.95),
+                        new NamedEntity("INVOICE_NUMBER", "INV-2026-0342", 0.98),
+                        new NamedEntity("PERSON", "John Smith", 0.88)
                 )
         );
     }
