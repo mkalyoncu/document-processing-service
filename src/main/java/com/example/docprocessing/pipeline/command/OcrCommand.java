@@ -39,4 +39,14 @@ public class OcrCommand extends AbstractPipelineCommand {
         return ProcessingStep.OCR_FAILED;
     }
 
+    @Override
+    protected Object doExecute(PipelineContext context) {
+        OcrResult result = ocrService.process(
+                context.getBase64Content(),
+                context.getWorkflow().getRequestUid()
+        );
+
+        context.setOcrResult(result);
+        return result;
+    }
 }

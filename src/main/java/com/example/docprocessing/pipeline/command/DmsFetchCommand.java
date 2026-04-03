@@ -43,4 +43,34 @@ public class DmsFetchCommand extends AbstractPipelineCommand {
         return ProcessingStep.DMS_FETCH_FAILED;
     }
 
+    @Override
+    protected Object doExecute(PipelineContext context) {
+        DmsDocumentMetadata metadata = dmsClient.getMetadata(context.getWorkflow().getDocRef());
+
+        if (metadata.getSizeBytes() > MAX_DOCUMENT_SIZE_BYTES) {
+            throw new DocumentTooLargeException("DOCUMENT_TOO_LARGE");
+        }
+
+        String base64Content = dmsClient.getContentAsBase64(context.getWorkflow().getDocRef());
+
+        context.setDmsMetadata(metadata);
+        context.setBase64Content(base64Content);
+
+        return new DmsFetchResult(
+                metadata.getFileName(),
+                metadata.getContentType(),
+                metadata.getSizeBytes(),
+                base64Content
+        );
+    }
+
+    @Override
+    protected void afterSuccess(PipelineContext context, Object result) {
+        DmsDocumentMetadata metadata = context.getDmsMetadata();
+        workflowService.updateDocumentMetadata(
+                context.getWorkflow().getDocumentId(),
+                metadata.getFileName(),
+                metadata.getSizeBytes()
+        );
+    }
 }

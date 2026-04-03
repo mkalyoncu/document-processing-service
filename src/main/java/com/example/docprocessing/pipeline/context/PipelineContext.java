@@ -16,4 +16,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PipelineContext {
 
+    private DocumentWorkflow workflow;
+    private String base64Content;
+    private DmsDocumentMetadata dmsMetadata;
+    private OcrResult ocrResult;
+    private ClassificationResult classificationResult;
+    private NerResult nerResult;
 }

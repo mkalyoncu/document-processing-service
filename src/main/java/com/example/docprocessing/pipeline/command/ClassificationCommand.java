@@ -39,4 +39,14 @@ public class ClassificationCommand extends AbstractPipelineCommand {
         return ProcessingStep.CLASSIFICATION_FAILED;
     }
 
+    @Override
+    protected Object doExecute(PipelineContext context) {
+        ClassificationResult result = classifierService.classify(
+                context.getBase64Content(),
+                context.getWorkflow().getRequestUid()
+        );
+
+        context.setClassificationResult(result);
+        return result;
+    }
 }

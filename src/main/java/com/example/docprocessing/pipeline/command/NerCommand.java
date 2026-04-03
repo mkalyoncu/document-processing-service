@@ -39,4 +39,14 @@ public class NerCommand extends AbstractPipelineCommand {
         return ProcessingStep.NER_FAILED;
     }
 
+    @Override
+    protected Object doExecute(PipelineContext context) {
+        NerResult result = nerService.extractEntities(
+                context.getBase64Content(),
+                context.getWorkflow().getRequestUid()
+        );
+
+        context.setNerResult(result);
+        return result;
+    }
 }
