@@ -190,7 +190,7 @@ Request body:
 ### Get document details
 
 ```
-GET /api/v1/documents/{documentId}
+curl /api/v1/documents/{documentId}
 ```
 
 ---
