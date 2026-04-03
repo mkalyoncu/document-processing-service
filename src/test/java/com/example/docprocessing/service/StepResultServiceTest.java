@@ -66,4 +66,30 @@ class StepResultServiceTest {
         );
     }
 
+    @Test
+    void failStep_shouldKeepStartedAtAndCalculateDuration() {
+        UUID documentId = UUID.randomUUID();
+        LocalDateTime startedAt = LocalDateTime.now().minusSeconds(2);
+
+        StepResult existing = StepResult.builder()
+                .documentId(documentId)
+                .step(ProcessingStep.NER_PROCESSING)
+                .status(StepStatus.PROCESSING)
+                .startedAt(startedAt)
+                .resultJson("{\"old\":true}")
+                .build();
+
+        when(stepResultRepository.findByDocumentIdAndStep(documentId, ProcessingStep.NER_PROCESSING))
+                .thenReturn(Optional.of(existing));
+        when(stepResultRepository.save(existing)).thenReturn(existing);
+
+        StepResult result = stepResultService.failStep(documentId, ProcessingStep.NER_PROCESSING, "CANCELLED_BY_USER");
+
+        assertEquals(StepStatus.FAILED, result.getStatus());
+        assertEquals("CANCELLED_BY_USER", result.getErrorMessage());
+        assertEquals(startedAt, result.getStartedAt());
+        assertNotNull(result.getCompletedAt());
+        assertNotNull(result.getDurationMs());
+        assertTrue(result.getDurationMs() >= 0);
+    }
 }
