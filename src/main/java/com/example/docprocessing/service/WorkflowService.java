@@ -103,7 +103,7 @@ public class WorkflowService {
         workflow.setCurrentStep(restartStep);
         workflow.setFailureReason(null);
         workflow.setFailedAtStep(null);
-        workflow.setRetryCount(workflow.getRetryCount() + 1);
+        workflow.setRetryCount(currentRetryAmount);
 
         return documentWorkflowRepository.save(workflow);
     }
