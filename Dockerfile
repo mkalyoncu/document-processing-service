@@ -11,6 +11,9 @@ RUN mvn clean package
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
+ENV DMS_BASE_URL=https://dms.example.com/api/v1
+ENV DMS_API_KEY=simulated-api-key-for-dev
+
 COPY --from=builder /app/target/*.jar app.jar
 
 EXPOSE 8080
