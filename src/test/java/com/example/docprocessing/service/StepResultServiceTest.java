@@ -53,5 +53,17 @@ class StepResultServiceTest {
         assertEquals("DMS fetch result is empty", ex.getMessage());
     }
 
+    @Test
+    void getPersistedBase64Content_shouldThrow_whenStepResultDoesNotExist() {
+        UUID documentId = UUID.randomUUID();
+
+        when(stepResultRepository.findByDocumentIdAndStep(documentId, ProcessingStep.DMS_FETCHING))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                StepResultNotFoundException.class,
+                () -> stepResultService.getPersistedBase64Content(documentId)
+        );
+    }
 
 }
