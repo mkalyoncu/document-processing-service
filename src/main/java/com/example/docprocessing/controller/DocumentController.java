@@ -9,6 +9,7 @@ import com.example.docprocessing.dto.StepResultResponse;
 import com.example.docprocessing.dto.SubmitDocumentRequest;
 import com.example.docprocessing.dto.SubmitDocumentResponse;
 import com.example.docprocessing.mapper.DocumentMapper;
+import com.example.docprocessing.pipeline.PipelineOrchestrator;
 import com.example.docprocessing.service.StepResultService;
 import com.example.docprocessing.service.WorkflowService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,7 @@ public class DocumentController {
 
     private final WorkflowService workflowService;
     private final StepResultService stepResultService;
+    private final PipelineOrchestrator pipelineOrchestrator;
     private final DocumentMapper documentMapper;
     private final ObjectMapper objectMapper;
 
@@ -37,7 +39,8 @@ public class DocumentController {
     public SubmitDocumentResponse submitDocument(@Valid @RequestBody SubmitDocumentRequest request) {
         DocumentWorkflow workflow = workflowService.createWorkflow(request.getDocRef());
 
-        // process submit
+        pipelineOrchestrator.startProcessing(workflow.getDocumentId());
+
         return SubmitDocumentResponse.builder()
                 .documentId(workflow.getDocumentId())
                 .docRef(workflow.getDocRef())
@@ -98,7 +101,8 @@ public class DocumentController {
     public Map<String, Object> retry(@PathVariable UUID documentId) {
         DocumentWorkflow workflow = workflowService.retry(documentId);
 
-        // resume job
+        pipelineOrchestrator.resumeProcessing(documentId);
+
         return Map.of(
                 "documentId", workflow.getDocumentId(),
                 "restartedFromStep", workflow.getCurrentStep(),
