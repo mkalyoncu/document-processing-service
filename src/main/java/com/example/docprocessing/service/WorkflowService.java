@@ -6,6 +6,7 @@ import com.example.docprocessing.exception.DocumentNotFoundException;
 import com.example.docprocessing.exception.InvalidTransitionException;
 import com.example.docprocessing.repository.DocumentWorkflowRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,9 @@ import java.util.UUID;
 @Transactional
 public class WorkflowService {
     private static final String CANCELLED_BY_USER_REASON = "CANCELLED_BY_USER";
+
+    @Value("${max.retry.count}")
+    private int maxRetryCount;
 
     private final DocumentWorkflowRepository documentWorkflowRepository;
 
@@ -79,8 +83,15 @@ public class WorkflowService {
     public DocumentWorkflow retry(UUID documentId) {
         DocumentWorkflow workflow = getById(documentId);
 
+        int currentRetryAmount = workflow.getRetryCount() + 1;
+
         if (workflow.getCurrentStep() != ProcessingStep.FAILED) {
             throw new InvalidTransitionException("Retry allowed only for FAILED documents");
+        }
+
+        if (currentRetryAmount > maxRetryCount) {
+            throw new InvalidTransitionException("Maximum retry count exceeded. " +
+                    "Document will not be processing anymore.");
         }
 
         if (CANCELLED_BY_USER_REASON.equals(workflow.getFailureReason())) {
